@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your K-Pop Song</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Choose Your K-Pop Song You May Like</h1>
+        <form id="songForm">
+            <div class="options">
+                <div class="option-group">
+                    <p>Mood:</p>
+                    <button type="button" data-category="mood" data-value="Happy">😊 Happy</button>
+                    <button type="button" data-category="mood" data-value="Sad">😢 Sad</button>
+                    <button type="button" data-category="mood" data-value="Melancholic">😔 Melancholic</button>
+                    <button type="button" data-category="mood" data-value="Energetic">⚡ Energetic</button>
+                    <button type="button" data-category="mood" data-value="Soothing">🌿 Soothing</button>
+                </div>
+                <div class="option-group">
+                    <p>Activity:</p>
+                    <button type="button" data-category="activity" data-value="Exercise">🏋️‍♀️ Exercise</button>
+                    <button type="button" data-category="activity" data-value="Study">📚 Study</button>
+                    <button type="button" data-category="activity" data-value="Driving">🚗 Driving</button>
+                    <button type="button" data-category="activity" data-value="Strolling">🚶‍♂️ Strolling</button>
+                    <button type="button" data-category="activity" data-value="Party">🎉 Party</button>
+                </div>
+                <div class="option-group">
+                    <p>Genre:</p>
+                    <button type="button" data-category="genre" data-value="Pop">🎤 Pop</button>
+                    <button type="button" data-category="genre" data-value="Rock">🎸 Rock</button>
+                    <button type="button" data-category="genre" data-value="Hip-hop">🎧 Hip-hop</button>
+                    <button type="button" data-category="genre" data-value="Jazz">🎷 Jazz</button>
+                    <button type="button" data-category="genre" data-value="Electronic">🎹 Electronic</button>
+                </div>
+            </div>
+            <input type="hidden" id="mood" name="mood">
+            <input type="hidden" id="activity" name="activity">
+            <input type="hidden" id="genre" name="genre">
+            <button type="submit">Find My K-Pop Song</button>
+        </form>
+
+        <div class="results" id="results">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Track selected options
+        const selectedOptions = {
+            mood: null,
+            activity: null,
+            genre: null
+        };
+
+        // Handle button click to select an option
+        document.querySelectorAll('.option-group button').forEach(button => {
+            button.addEventListener('click', () => {
+                const category = button.getAttribute('data-category');
+                const value = button.getAttribute('data-value');
+
+                // Update the selected option
+                selectedOptions[category] = value;
+
+                // Set the hidden input values
+                document.getElementById(category).value = value;
+
+                // Update button styles
+                document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+            });
+        });
+
+        document.getElementById('songForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const { mood, activity, genre } = selectedOptions;
+
+            if (!mood || !activity || !genre) {
+                alert('Please select options for Mood, Activity, and Genre.');
+                return;
+            }
+
+            // Fetch song data from songData.json
+            fetch('songData.json')
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data)) {
+                        throw new Error("Invalid data format: expected an array");
+                    }
+
+                    const filteredSongs = data.filter(song => 
+                        song.Mood === mood &&
+                        song.Activity === activity &&
+                        song.Genre === genre
+                    );
+
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '';
+
+                    if (filteredSongs.length > 0) {
+                        filteredSongs.forEach(song => {
+                            // Create Google search link
+                            const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(song.Title + ' ' + song.Artist + ' official audio')}`;
+
+                            const songDiv = document.createElement('div');
+                            songDiv.className = 'song';
+                            songDiv.innerHTML = `
+                                <img src="${song.albumUrl}" alt="${song.Title} Album Art">
+                                <div class="song-details">
+                                    <h2>${song.Title}</h2>
+                                    <p><strong>Artist:</strong> ${song.Artist}</p>
+                                    <a href="${googleSearchUrl}" target="_blank" class="google-link">Search on Google</a>
+                                </div>
+                            `;
+                            resultsDiv.appendChild(songDiv);
+                        });
+                    } else {
+                        resultsDiv.innerHTML = '<p>No songs found matching your criteria.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching song data:', error);
+                });
+        });
+    </script>
+</body>
+</html>
