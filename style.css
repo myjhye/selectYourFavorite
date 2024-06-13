@@ -20,6 +20,7 @@ body {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    overflow-x: hidden; /* Hide horizontal overflow */
 }
 
 /* Header */
@@ -72,6 +73,7 @@ button[type="button"] {
     font-size: 16px;
     transition: background-color 0.3s, border-color 0.3s;
     text-align: center;
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
 }
 
 button[type="button"]:hover {
@@ -159,7 +161,8 @@ button[type="submit"]:hover {
     font-weight: bold;
     transition: background-color 0.3s;
     width: 100%;
-    max-width: 200px;
+    max-width: 200px; /* Maximum width for buttons */
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
     text-align: center;
 }
 
